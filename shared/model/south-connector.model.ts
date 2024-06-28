@@ -65,7 +65,8 @@ export interface SouthConnectorItemDTO<T extends SouthItemSettings = any> extend
   enabled: boolean;
   connectorId: string;
   settings: T;
-  scanModeId: string;
+  scanModeId?: string;
+  scanModeName?: string;
 }
 
 /**
