@@ -113,7 +113,7 @@ export interface SouthConnectorManifest {
 
 export interface SouthCache {
   southId: string;
-  scanModeId: string;
+  scanModeId: string | undefined;
   itemId: string;
   maxInstant: Instant;
 }
