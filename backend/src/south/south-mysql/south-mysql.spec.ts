@@ -538,4 +538,12 @@ describe('SouthMySQL test connection', () => {
       await expect(south.testConnection()).rejects.toThrow(new Error(`${ERROR_CODES[code]} ${errorMessage}`));
     }
   });
+
+  it('Should test items', async () => {
+
+    let callback = jest.fn();
+    await south.testItem(items[0], callback);
+
+    expect(south.testConnection).toHaveBeenCalled();
+  });
 });

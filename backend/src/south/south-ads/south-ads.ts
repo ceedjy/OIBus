@@ -202,6 +202,8 @@ export default class SouthADS extends SouthConnector<SouthADSSettings, SouthADSI
     });
   }
 
+  // test item : meme logic que modbus 
+
   createConnectionOptions(): ADSOptions {
     const options: ADSOptions = {
       targetAmsNetId: this.connector.settings.netId, // example: 192.168.1.120.1.1

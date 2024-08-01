@@ -1,0 +1,24 @@
+<div class="modal-header">
+  <h4 class="modal-title">Test result</h4>
+</div>
+<div class="modal-body">
+  <p style="white-space: pre-line">{{ this.result }}</p>
+  <p style="white-space: pre-line">{{ this.resultContent }}</p>
+   <!--@if (this.resultContent instanceof string) {
+    <p style="white-space: pre-line">{{ this.resultContent }}</p>
+  } @else {
+    <table>
+      <th>
+
+      </th>
+      
+    </table> 
+    <p style="white-space: pre-line">{{ this.resultContent }}</p>
+  }-->
+  
+</div>
+<div class="modal-footer">
+  <div class="btn-group">
+    <button type="button" class="btn btn-cancel" (click)="close()" id="close-button">Close</button>
+  </div>
+</div>

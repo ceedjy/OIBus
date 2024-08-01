@@ -154,6 +154,42 @@ export default class SouthOPCUA
     }
   }
 
+  // override async testItem(item: SouthConnectorItemDTO<SouthOPCUAItemSettings>, callback: (data: OIBusContent) => void): Promise<void> {
+  //   await this.testConnection(); create conextion 
+    // subscribe -> voir si ça marche (connexion ok) - recup valeur a voir, et unsubscribe a la fin 
+    // da -> last point query 
+    // ha -> history query 
+  //   const tempCertFolder = `opcua-test-${randomUUID()}`;
+  //   await this.initOpcuaCertificateFolders(tempCertFolder);
+
+  //   try {
+  //     await new Promise<void>((resolve, reject) => {
+  //       this.socket = new net.Socket();
+  //       this.client = new client.TCP(this.socket, this.connector.settings.slaveId);
+  //       this.socket.connect(
+  //         {
+  //           host: this.connector.settings.host,
+  //           port: this.connector.settings.port
+  //         },
+  //         async () => {
+  //           const dataValues: OIBusTimeValue[] = await this.modbusFunction(item);
+  //           callback({
+  //             type: 'time-values',
+  //             content: dataValues
+  //           });
+  //           await this.disconnect();
+  //           resolve();
+  //         }
+  //       );
+  //       this.socket.on('error', async error => {
+  //         reject(error);
+  //       });
+  //     });
+  //   } catch (error: any) {
+  //     throw new Error(error.message);
+  //   }
+  // }
+
   override filterHistoryItems(
     items: Array<SouthConnectorItemDTO<SouthOPCUAItemSettings>>
   ): Array<SouthConnectorItemDTO<SouthOPCUAItemSettings>> {
@@ -302,7 +338,7 @@ export default class SouthOPCUA
               this.logger.error('No result found in response');
               nodesToRead = [];
             }
-          } while (nodesToRead.length > 0);
+          } while (nodesToRead.length > 0); // creer fct qui reprend ça mais avec 1 seul item a appeler dans le test 
 
           // If all is retrieved, clear continuation points
           nodesToRead = resampledItems.map(item => ({
@@ -505,25 +541,25 @@ export default class SouthOPCUA
         this.logger.debug(`Read node ${itemsToRead[0].settings.nodeId}`);
       }
 
-      const startRequest = DateTime.now().toMillis();
-      const dataValues = await session.read(itemsToRead.map(item => ({ nodeId: item.settings.nodeId })));
-      const requestDuration = DateTime.now().toMillis() - startRequest;
-      this.logger.debug(`Found ${dataValues.length} results for ${itemsToRead.length} items (DA mode) in ${requestDuration} ms`);
-      if (dataValues.length !== itemsToRead.length) {
-        this.logger.error(
-          `Received ${dataValues.length} node results, requested ${itemsToRead.length} nodes. Request done in ${requestDuration} ms`
-        );
-      }
-
-      const timestamp = DateTime.now().toUTC().toISO()!;
-      const values = dataValues.map((dataValue: DataValue, i) => ({
-        pointId: itemsToRead[i].name,
-        timestamp,
-        data: {
-          value: this.parseOPCUAValue(itemsToRead[i].name, dataValue.value),
-          quality: JSON.stringify(dataValue.statusCode)
+        const startRequest = DateTime.now().toMillis();
+        const dataValues = await session.read(itemsToRead.map(item => ({ nodeId: item.settings.nodeId })));
+        const requestDuration = DateTime.now().toMillis() - startRequest;
+        this.logger.debug(`Found ${dataValues.length} results for ${itemsToRead.length} items (DA mode) in ${requestDuration} ms`);
+        if (dataValues.length !== itemsToRead.length) {
+          this.logger.error(
+            `Received ${dataValues.length} node results, requested ${itemsToRead.length} nodes. Request done in ${requestDuration} ms`
+          );
         }
-      }));
+
+        const timestamp = DateTime.now().toUTC().toISO()!;
+        const values = dataValues.map((dataValue: DataValue, i) => ({
+          pointId: itemsToRead[i].name,
+          timestamp,
+          data: {
+            value: this.parseOPCUAValue(itemsToRead[i].name, dataValue.value),
+            quality: JSON.stringify(dataValue.statusCode)
+          }
+        })); // -> dans une fct qui return des values (a appeler dans le da)
       await this.addContent({ type: 'time-values', content: values.filter(parsedValue => parsedValue.data.value) });
     } catch (error) {
       await this.disconnect();
